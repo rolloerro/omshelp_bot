@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+
+# Logs
+*.log
+logs/
+*.tmp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# GitHub actions / temporary
+*.bak
+*.swp
+*.swo
+*.swn
+
+# Your custom untracked files
+push_profile.sh
