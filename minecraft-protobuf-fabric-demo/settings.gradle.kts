@@ -1,8 +1,8 @@
 pluginManagement {
     repositories {
-        maven("https://maven.fabricmc.net/") // ✅ тут лежит fabric-loom
-        mavenCentral()
-        gradlePluginPortal()
+        maven("https://maven.fabricmc.net/")        // Fabric repo
+        gradlePluginPortal()                        // Gradle plugins
+        mavenCentral()                              // Backup repo
     }
 }
 

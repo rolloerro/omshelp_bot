@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "minecraft-protobuf-demo",
+  "version": "1.0.0",
+  "name": "Minecraft Protobuf Demo",
+  "description": "Demo Fabric mod with Protobuf integration",
+  "authors": ["Rolloerro"],
+  "contact": {
+    "sources": "https://github.com/rolloerro/minecraft-protobuf-fabric-demo"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.rolloerro.minecraftprotobufdemo.MinecraftProtobufDemo"],
+    "client": ["com.rolloerro.minecraftprotobufdemo.MinecraftProtobufDemoClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "1.21.8",
+    "java": ">=21"
+  }
+}

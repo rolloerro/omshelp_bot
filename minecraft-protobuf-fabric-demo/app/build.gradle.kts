@@ -1,7 +1,10 @@
 plugins {
     id("fabric-loom") version "1.7.4"
-    id("com.google.protobuf") version "0.9.4"
+    id("maven-publish")
 }
+
+group = "com.rolloerro"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -10,28 +13,38 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.21.1")
-    mappings("net.fabricmc:yarn:1.21.1+build.3:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.15.11")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    minecraft("com.mojang:minecraft:1.20.1")
+    mappings("net.fabricmc:yarn:1.20.1+build.10:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.15.7")
 
+    // fabric API (если используешь)
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.92.0+1.20.1")
+
+    // убираем JUnit и тесты
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.25.3"
+tasks {
+    // вырубаем тесты
+    named<Test>("test") {
+        enabled = false
     }
-    generatedFilesBaseDir = "$projectDir/src/generated"
-}
 
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-}
+    processResources {
+        filesMatching("fabric.mod.json") {
+            expand(
+                "version" to project.version
+            )
+        }
+    }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-}
-tasks.test {
-    useJUnitPlatform()
+    jar {
+        from("LICENSE") {
+            rename { "${it}_${project.name}" }
+        }
+    }
+
+    // чистим всякие toolchain’ы
+    compileJava {
+        options.release.set(17)
+    }
 }
