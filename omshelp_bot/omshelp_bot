@@ -1,0 +1,99 @@
+import logging
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+import fitz  # PyMuPDF
+
+# Логирование
+logging.basicConfig(level=logging.INFO)
+
+PDF_PATH = "001.ОМС.pdf"
+
+# Загружаем PDF при старте
+print("📄 Загружаем PDF (это может занять немного времени)...")
+doc = fitz.open(PDF_PATH)
+pdf_text = ""
+for page in doc:
+    pdf_text += page.get_text("text")
+print(f"✅ Загружено {len(doc)} страниц PDF")
+
+# Команда /start
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("ℹ️ Справка", callback_data="help")],
+        [InlineKeyboardButton("🔍 Как здесь искать", callback_data="search_help")],
+        [InlineKeyboardButton("📘 Скачать Программу госгарантий", callback_data="download_pdf")],
+        [InlineKeyboardButton("👥 Контакты для Вас", callback_data="contacts")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(
+        "Привет! 🤖 Бот запущен и готов к работе.\n\n"
+        "Выбери действие ниже:",
+        reply_markup=reply_markup
+    )
+
+# Обработчик нажатий
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "help":
+        await query.message.reply_text(
+            "🧭 Команды:\n"
+            "/start — запустить бота\n"
+            "/help — справка\n\n"
+            "🧾 Здесь ты можешь искать тарифы по МКБ.\n"
+            "Просто введи, например: ВМП С-67\n\n"
+            "📘 Также можно скачать актуальную Программу государственных гарантий."
+        )
+
+    elif query.data == "search_help":
+        await query.message.reply_text(
+            "🔍 Как здесь искать?\n\n"
+            "Напиши интересующий тебя тариф по МКБ.\n"
+            "Пример: ВМП С-67\n\n"
+            "Бот найдёт все совпадения в Программе госгарантий ОМС."
+        )
+
+    elif query.data == "download_pdf":
+        with open(PDF_PATH, "rb") as f:
+            await query.message.reply_document(f, caption="📘 Программа государственных гарантий ОМС")
+
+    elif query.data == "contacts":
+        await query.message.reply_text(
+            "👥 Контакты для связи:\n\n"
+            "@MSL72Rph 🥷 + TARS 🤖\n"
+            "(внедрение AI в медицине)\n\n"
+            "Версия бота: v1.4 🚀"
+        )
+
+# Поиск по PDF
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.strip().lower()
+    results = [line for line in pdf_text.split("\n") if text in line.lower()]
+
+    if results:
+        response = "\n".join(results[:10])
+    else:
+        response = "😔 Ничего не найдено. Попробуй изменить запрос."
+
+    await update.message.reply_text(response)
+
+# Основной запуск
+if __name__ == "__main__":
+    app = ApplicationBuilder().token("YOUR_TELEGRAM_BOT_TOKEN").build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler("help", start))
+    app.add_handler(MessageHandler(filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler("contacts", start))
+    app.add_handler(CommandHandler("download_pdf", start))
+    app.add_handler(CommandHandler("search_help", start))
+    app.add_handler(MessageHandler(filters.ALL, handle_message))
+    app.add_handler(MessageHandler(filters.COMMAND, handle_message))
+
+    from telegram.ext import CallbackQueryHandler
+    app.add_handler(CallbackQueryHandler(button_handler))
+
+    print("✅ Бот запущен... Ждёт сообщений.")
+    app.run_polling()
