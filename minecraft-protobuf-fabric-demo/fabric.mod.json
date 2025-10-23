@@ -1,4 +1,0 @@
-"entrypoints": {
-  "main": ["com.rolloerro.minecraftprotobufdemo.MinecraftProtobufDemo"],
-  "client": ["com.rolloerro.minecraftprotobufdemo.MinecraftProtobufDemo"]
-}
